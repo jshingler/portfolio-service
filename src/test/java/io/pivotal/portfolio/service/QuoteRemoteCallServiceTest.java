@@ -18,31 +18,33 @@ import static org.mockito.Mockito.when;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+// JLS Spring 5
+// import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = PortfolioApplication.class)
+@SpringBootTest(classes = PortfolioApplication.class)
 public class QuoteRemoteCallServiceTest {
 
 	@Value("${pivotal.quotesService.name}")
 	private String quotesURI;
-	
+
 	@Autowired
 	@InjectMocks
 	QuoteRemoteCallService service;
-	
+
 	@Mock
 	RestTemplate restTemplate;
-	
+
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 	}
-	
+
 	/*
 	 * resttemplate not being injected into service thus cannot test success of hystrix
 	 */
@@ -56,7 +58,7 @@ public class QuoteRemoteCallServiceTest {
 	@Test
 	public void doGetQuoteFailure() {
 		when(restTemplate.getForObject("http://" + quotesURI + "/quote/{symbol}", Quote.class, ServiceTestConfiguration.SYMBOL)).thenThrow(new RuntimeException("Deliberately throwing an exception 1"));
-		
+
 		Quote quote = service.getQuote(ServiceTestConfiguration.SYMBOL);
 		assertNotEquals(ServiceTestConfiguration.quote(),quote);
 		Quote emptyQuote = new Quote();
